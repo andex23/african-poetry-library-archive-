@@ -208,6 +208,15 @@
     text-indent: 0; color: var(--text-muted);
     letter-spacing: 0.3em;
   }
+  .reader-content .toc-entry {
+    text-indent: 0; margin-bottom: 0.25em;
+    padding-left: 1.5em; font-size: 0.95em;
+    color: var(--text); opacity: 0.85;
+  }
+  .reader-content .centered-short {
+    text-align: center; text-indent: 0;
+    margin: 0.3em 0; opacity: 0.85;
+  }
   .reader-content .page-separator {
     display: flex; align-items: center; gap: 1rem;
     margin: 2em 0; color: var(--text-muted); font-size: 0.7em;
@@ -570,7 +579,7 @@
     }
   }
 
-  // ═══════════ IMPROVED TEXT EXTRACTION ═══════════
+  // ═══════════ TEXT EXTRACTION ENGINE ═══════════
 
   // Statistical mode (most common value)
   function statMode(arr) {
@@ -582,6 +591,187 @@
       if (freq[r] > maxFreq) { maxFreq = freq[r]; modeVal = r; }
     }
     return modeVal;
+  }
+
+  // ── Fix common OCR errors ──
+  function fixOcr(text) {
+    return text
+      .replace(/\b1S\b/g, 'is')
+      .replace(/\b1s\b/g, 'is')
+      .replace(/\b0f\b/g, 'of')
+      .replace(/\bofa\b/g, 'of a')
+      .replace(/\b1n\b/g, 'in')
+      .replace(/\b1t\b/g, 'it')
+      .replace(/\b1f\b/g, 'if')
+      .replace(/\btlie\b/gi, 'the')
+      .replace(/\btbe\b/gi, 'the')
+      .replace(/\bwbo\b/gi, 'who')
+      .replace(/\bwitb\b/gi, 'with')
+      .replace(/\bbave\b/gi, 'have')
+      .replace(/\bwbich\b/gi, 'which')
+      .replace(/\bvvith\b/gi, 'with')
+      .replace(/\biiie\b/gi, 'the')
+      .replace(/\b([Tt])liat\b/g, '$1hat')
+      .replace(/\b([Ww])lien\b/g, '$1hen')
+      .replace(/\bm\s*—\s*/g, '— ')
+      .replace(/°/g, '') // degree sign artifacts
+      .replace(/\s{2,}/g, ' ');
+  }
+
+  // ── Detect OCR garbage text ──
+  function isGarbageText(text) {
+    const t = text.trim();
+    if (!t) return true;
+    // Single character only (keep 2+ chars — "is", "or", "an" etc.)
+    if (t.length === 1 && !/[IVXivxa]/.test(t)) return true;
+    // Count character types
+    const letters = (t.match(/[a-zA-Z]/g) || []).length;
+    const digits = (t.match(/\d/g) || []).length;
+    const spaces = (t.match(/\s/g) || []).length;
+    const total = t.length;
+    // If more than 35% is non-alphanumeric/space → likely OCR garbage
+    const junkRatio = (total - letters - digits - spaces) / total;
+    if (junkRatio > 0.35 && total > 5) return true;
+    // Consecutive uppercase consonants (no vowels) — "TTDBO", "SSCR"
+    if (/[B-DF-HJ-NP-TV-Z]{4,}/.test(t) && t.length < 40) return true;
+    // No letters at all (and not a pure number)
+    if (/^[^a-zA-Z]*$/.test(t) && !/^\d+$/.test(t)) return true;
+    // Words with mixed case inside like "aeLSSeeae" or "pete"aeL"
+    const words = t.split(/\s+/);
+    const mixedCaseGarbage = words.filter(w =>
+      w.length > 4 && /[a-z][A-Z]/.test(w) && !/^(Mc|Mac|De|Le|O')[A-Z]/.test(w)
+    );
+    if (mixedCaseGarbage.length >= 1 && words.length < 6) return true;
+    // Very few recognizable words in longer text
+    if (words.length > 3) {
+      const realWords = words.filter(w => /^[a-zA-Z'-]{2,}$/.test(w));
+      if (realWords.length / words.length < 0.35) return true;
+    }
+    // Single garbled ALL-CAPS word (library stamps like "DISCARDE", "DISCAR")
+    if (words.length === 1 && /^[A-Z]{5,}$/.test(t) && !/[AEIOU].*[AEIOU]/.test(t)) return true;
+    if (/^DISCARDE?D?$/i.test(t)) return true;
+    return false;
+  }
+
+  // ── Detect front matter / boilerplate pages ──
+  function isFrontMatterPage(pageText) {
+    const joined = pageText.join(' ').toLowerCase();
+    const markers = [
+      'isbn', 'cataloguing in publication', 'british library',
+      'library of congress', 'printed in', 'typeset by',
+      'cover design', 'cover illustration', 'all rights reserved',
+      'no part of this publication', 'digitized by the internet archive',
+      'educational publishers', 'a division of',
+      'first published', 'reprinted', '© '
+    ];
+    let hitCount = 0;
+    for (const m of markers) {
+      if (joined.includes(m)) hitCount++;
+    }
+    // If 3+ markers found, it's a front matter page
+    return hitCount >= 3;
+  }
+
+  // ── Detect Table of Contents page ──
+  function isTocPage(lines) {
+    // Count lines that look like TOC entries: "Title text 123" or "Title... 123"
+    let tocCount = 0;
+    for (const line of lines) {
+      const t = line.text.trim();
+      if (/\b\d{1,3}\s*$/.test(t) && t.length > 3 && t.length < 80) tocCount++;
+      if (/\.{2,}\s*\d+\s*$/.test(t)) tocCount++;
+    }
+    // If more than 40% of lines look like TOC entries, it's a TOC page
+    return lines.length >= 3 && (tocCount / lines.length) > 0.4;
+  }
+
+  // ── Format TOC page into structured entries ──
+  function formatTocPage(lines) {
+    const paragraphs = [];
+    paragraphs.push({ text: 'Contents', type: 'chapter-heading' });
+
+    for (const line of lines) {
+      const t = line.text.trim();
+      if (!t) continue;
+      // Skip the "Contents" heading itself
+      if (/^contents$/i.test(t)) continue;
+      // Skip standalone page numbers
+      if (/^\d{1,4}$/.test(t)) continue;
+      // Format: "Chapter Title  123" → "Chapter Title"
+      const cleaned = t.replace(/\.{2,}\s*\d+\s*$/, '').replace(/\s+\d{1,3}\s*$/, '').trim();
+      if (cleaned && cleaned.length > 1) {
+        paragraphs.push({ text: cleaned, type: 'toc-entry' });
+      }
+    }
+    return paragraphs;
+  }
+
+  // ── Detect running headers (repeated text at top/bottom of pages) ──
+  let runningHeaders = new Set();
+  function detectRunningHeaders(allPageLines) {
+    // Collect text from top/bottom of each page
+    const topTexts = {};
+    const bottomTexts = {};
+    for (const pageLines of allPageLines) {
+      if (!pageLines.length) continue;
+      // Top 2 lines
+      for (let i = 0; i < Math.min(2, pageLines.length); i++) {
+        const t = pageLines[i].text.trim().toUpperCase();
+        if (t.length > 2 && t.length < 60) topTexts[t] = (topTexts[t] || 0) + 1;
+      }
+      // Bottom 2 lines
+      for (let i = Math.max(0, pageLines.length - 2); i < pageLines.length; i++) {
+        const t = pageLines[i].text.trim().toUpperCase();
+        if (t.length > 2 && t.length < 60) bottomTexts[t] = (bottomTexts[t] || 0) + 1;
+      }
+    }
+    // Text appearing on 3+ pages as top/bottom is a running header/footer
+    runningHeaders = new Set();
+    for (const [t, count] of Object.entries(topTexts)) {
+      if (count >= 3) runningHeaders.add(t);
+    }
+    for (const [t, count] of Object.entries(bottomTexts)) {
+      if (count >= 3) runningHeaders.add(t);
+    }
+    // Also add patterns like "NUMBER TITLE" at page edges (e.g. "2 JESUS IS INDIAN")
+    for (const t of runningHeaders) {
+      // Add without leading number too
+      const withoutNum = t.replace(/^\d+\s+/, '');
+      if (withoutNum.length > 2) runningHeaders.add(withoutNum);
+    }
+  }
+
+  // Get raw lines from a page (for running header detection, fast first pass)
+  function getRawLines(textContent, viewport) {
+    const items = textContent.items;
+    if (!items || !items.length) return [];
+    const vpH = viewport.height;
+    const norm = [];
+    for (const item of items) {
+      if (item.str === undefined || (!item.str && !item.hasEOL)) continue;
+      norm.push({
+        text: item.str,
+        y: Math.round(vpH - item.transform[5]),
+        x: Math.round(item.transform[4]),
+        width: item.width || 0,
+      });
+    }
+    norm.sort((a, b) => a.y - b.y || a.x - b.x);
+    const lines = [];
+    let cur = null;
+    for (const item of norm) {
+      if (!cur || Math.abs(item.y - cur.y) > 4) {
+        cur = { y: item.y, text: '' };
+        lines.push(cur);
+      }
+      if (cur.text && item.x > 0) {
+        const gap = item.x - (cur.text.length > 0 ? item.x : 0); // approximate
+        cur.text += (cur.text.endsWith(' ') || item.text.startsWith(' ') ? '' : ' ') + item.text;
+      } else {
+        cur.text += item.text;
+      }
+    }
+    return lines.filter(l => l.text.trim().length > 0);
   }
 
   // Process a single page's text content into clean paragraphs
@@ -629,14 +819,12 @@
     for (const line of lines) {
       line.items.sort((a, b) => a.x - b.x);
 
-      // Join items on the same line with smart spacing
       let text = '';
       for (let i = 0; i < line.items.length; i++) {
         const item = line.items[i];
         if (i > 0) {
           const prev = line.items[i - 1];
           const gap = item.x - (prev.x + prev.width);
-          // Add space if there's a significant gap between items
           if (gap > 2 && !text.endsWith(' ') && !item.text.startsWith(' ')) {
             text += ' ';
           }
@@ -653,23 +841,31 @@
       line.isItalic = line.items.some(i => /italic|oblique/i.test(i.fontName));
     }
 
-    // Filter out empty lines
-    const contentLines = lines.filter(l => l.text.trim().length > 0);
-    if (!contentLines.length) return [];
-
-    // Detect and remove page numbers / running headers/footers
-    const filtered = contentLines.filter(line => {
+    // Filter: empty lines, garbage, page numbers, running headers
+    const filtered = lines.filter(line => {
       const t = line.text.trim();
-      const isPageNum = /^\d{1,4}$/.test(t);
-      // Remove standalone page numbers anywhere (they're always isolated on their own line)
-      if (isPageNum) return false;
-      const isAtEdge = line.y < 40 || line.y > vpHeight - 40;
-      // Remove very short header/footer text at page edges
-      if (t.length < 4 && isAtEdge) return false;
+      if (!t) return false;
+      // Page numbers
+      if (/^\d{1,4}$/.test(t)) return false;
+      // OCR garbage
+      if (isGarbageText(t)) return false;
+      // Running header/footer at page edges
+      const isAtEdge = line.y < 50 || line.y > vpHeight - 50;
+      if (isAtEdge && runningHeaders.has(t.toUpperCase())) return false;
+      // Short text at very top/bottom (page nums with text like "4 TITLE")
+      if (isAtEdge && /^\d{1,3}\s+[A-Z]/.test(t) && t.length < 50) return false;
+      if (isAtEdge && t.length < 5) return false;
       return true;
     });
 
     if (!filtered.length) return [];
+
+    // ── Check if this is a TOC page ──
+    if (isTocPage(filtered)) {
+      return formatTocPage(filtered);
+    }
+
+    // (front matter pages are kept — we don't skip any pages)
 
     // Calculate statistics for paragraph detection
     const fontSizes = filtered.map(l => l.fontSize);
@@ -696,7 +892,8 @@
       const isHeader = (line.fontSize > bodyFontSize + 2) ||
                        (line.text.trim().length < 50 && line.isBold && line.fontSize >= bodyFontSize) ||
                        (line.text === line.text.toUpperCase() && /[A-Z]/.test(line.text) &&
-                        line.text.trim().length > 2 && line.text.trim().length < 60);
+                        line.text.trim().length > 2 && line.text.trim().length < 60 &&
+                        !/[a-z]/.test(line.text));
 
       // Check for scene break markers
       const isSceneBreak = /^[\s*\-_=~.]{3,}$/.test(line.text.trim()) ||
@@ -744,7 +941,6 @@
       if (!lineText) continue;
       if (i > 0 && text) {
         if (text.endsWith('-') && /^[a-z]/.test(lineText)) {
-          // Hyphenated word at line break — join without hyphen
           text = text.slice(0, -1) + lineText;
         } else {
           text += ' ' + lineText;
@@ -754,21 +950,53 @@
       }
     }
 
-    // Note: mid-word hyphens from PDF line breaks are handled in the line-joining logic above.
-    // Remaining hyphens in text are assumed to be legitimate (compound words, prefixes, etc.)
-
-    // Clean up multiple spaces
+    // Fix OCR errors and clean up
+    text = fixOcr(text);
     text = text.replace(/\s{2,}/g, ' ').trim();
 
     // Determine type
     let type = 'paragraph';
     if (isHeader) {
       type = lines[0].fontSize > bodyFontSize + 4 ? 'chapter-heading' : 'subheading';
-      // Strip trailing page numbers from headings (e.g. "HIGH HEELS 15" → "HIGH HEELS")
       text = text.replace(/\s+\d{1,4}$/, '');
     }
 
+    // Skip very short garbage paragraphs
+    if (!text || text.length < 2) {
+      return { text: '', type: 'skip' };
+    }
+
     return { text, type };
+  }
+
+  // ── Post-process: detect inline TOC and split it ──
+  function splitInlineToc(text) {
+    // Detect patterns like "Title 14 Another Title 24 Third Title 39"
+    // This happens when TOC entries are crammed into one paragraph
+    const tocPattern = /([A-Za-z][A-Za-z\s'.,&-]+?)\s+(\d{1,3})\s+(?=[A-Z])/g;
+    const entries = [];
+    let match;
+    let lastIdx = 0;
+    const testStr = text;
+
+    // Count potential TOC entries
+    const matches = [...testStr.matchAll(tocPattern)];
+    if (matches.length < 3) return null; // Not a TOC — need at least 3 entries
+
+    // Extract entries
+    let remaining = text;
+    for (const m of matches) {
+      const title = m[1].trim();
+      if (title.length > 2) entries.push(title);
+    }
+
+    // Get last entry (after the last match)
+    const lastMatch = matches[matches.length - 1];
+    const afterLast = text.substring(lastMatch.index + lastMatch[0].length);
+    const trailing = afterLast.replace(/^\s*/, '').replace(/\s+\d{1,3}\s*$/, '').trim();
+    if (trailing.length > 2) entries.push(trailing);
+
+    return entries;
   }
 
   // ═══════════ RENDER ALL PAGES (continuous scroll) ═══════════
@@ -778,15 +1006,45 @@
 
     for (let i = 0; i < allPages.length; i++) {
       const paragraphs = allPages[i];
-      if (!paragraphs || paragraphs.length === 0) continue; // skip blank pages
+      if (!paragraphs || paragraphs.length === 0) continue;
 
-      for (const p of paragraphs) {
+      for (let j = 0; j < paragraphs.length; j++) {
+        const p = paragraphs[j];
+        if (!p.text || p.type === 'skip') continue;
+
+        // Check if this paragraph is actually an inline TOC
+        if (p.type === 'paragraph' && p.text.length > 60) {
+          const tocEntries = splitInlineToc(p.text);
+          if (tocEntries) {
+            // Only add heading if previous paragraph wasn't already "Contents"
+            const prevText = j > 0 ? paragraphs[j - 1]?.text : '';
+            if (!/^contents$/i.test(prevText)) {
+              html += `<p class="chapter-heading">Contents</p>`;
+            }
+            for (const entry of tocEntries) {
+              html += `<p class="toc-entry">${esc(entry)}</p>`;
+            }
+            continue;
+          }
+        }
+
+        // Center short text near headings (title pages, cover text)
+        const prevType = j > 0 ? paragraphs[j - 1]?.type : null;
+        const nextType = j < paragraphs.length - 1 ? paragraphs[j + 1]?.type : null;
+        const nearHeading = prevType === 'chapter-heading' || prevType === 'subheading' ||
+                            nextType === 'chapter-heading' || nextType === 'subheading';
+        const isShortBody = p.type === 'paragraph' && p.text.length < 60;
+
         if (p.type === 'chapter-heading') {
           html += `<p class="chapter-heading">${esc(p.text)}</p>`;
         } else if (p.type === 'subheading') {
           html += `<p class="subheading">${esc(p.text)}</p>`;
         } else if (p.type === 'scene-break') {
           html += `<p class="scene-break">${esc(p.text)}</p>`;
+        } else if (p.type === 'toc-entry') {
+          html += `<p class="toc-entry">${esc(p.text)}</p>`;
+        } else if (isShortBody && nearHeading) {
+          html += `<p class="centered-short">${esc(p.text)}</p>`;
         } else {
           html += `<p>${esc(p.text)}</p>`;
         }
@@ -851,24 +1109,39 @@
     totalPages = pdfDoc.numPages;
     allPages = [];
 
-    statusEl.textContent = `Extracting text... 0/${totalPages}`;
-
+    // Pass 1: Extract raw lines from all pages (for running header detection)
+    statusEl.textContent = 'Scanning pages...';
+    const rawData = []; // [{tc, vp, rawLines}]
     for (let i = 1; i <= totalPages; i++) {
       try {
         const page = await pdfDoc.getPage(i);
         const tc = await page.getTextContent();
         const vp = page.getViewport({ scale: 1 });
-        const paragraphs = processPageText(tc, vp);
-        allPages.push(paragraphs);
+        const rawLines = getRawLines(tc, vp);
+        rawData.push({ tc, vp, rawLines });
       } catch {
+        rawData.push({ tc: null, vp: null, rawLines: [] });
+      }
+      const pct = Math.round((i / totalPages) * 50); // first 50%
+      progressFill.style.width = pct + '%';
+      if (i % 5 === 0) statusEl.textContent = `Scanning pages... ${i}/${totalPages}`;
+    }
+
+    // Detect running headers across all pages
+    detectRunningHeaders(rawData.map(d => d.rawLines));
+
+    // Pass 2: Process into paragraphs with running header info
+    statusEl.textContent = 'Formatting text...';
+    for (let i = 0; i < rawData.length; i++) {
+      const { tc, vp } = rawData[i];
+      if (tc && vp) {
+        allPages.push(processPageText(tc, vp));
+      } else {
         allPages.push([]);
       }
-
-      const pct = Math.round((i / totalPages) * 100);
+      const pct = 50 + Math.round(((i + 1) / rawData.length) * 50);
       progressFill.style.width = pct + '%';
-      if (i % 3 === 0 || i === totalPages) {
-        statusEl.textContent = `Extracting text... ${i}/${totalPages}`;
-      }
+      if (i % 5 === 0) statusEl.textContent = `Formatting text... ${i + 1}/${totalPages}`;
     }
 
     // Setup
@@ -936,19 +1209,29 @@
       totalPages = pdfDoc.numPages;
       allPages = [];
 
+      // Pass 1: raw lines for running header detection
+      const rawData2 = [];
       for (let i = 1; i <= totalPages; i++) {
         try {
           const page = await pdfDoc.getPage(i);
           const tc = await page.getTextContent();
           const vp = page.getViewport({ scale: 1 });
-          allPages.push(processPageText(tc, vp));
-        } catch { allPages.push([]); }
-
-        const pct = Math.round((i / totalPages) * 100);
+          rawData2.push({ tc, vp, rawLines: getRawLines(tc, vp) });
+        } catch { rawData2.push({ tc: null, vp: null, rawLines: [] }); }
+        const pct = Math.round((i / totalPages) * 50);
         progressFill.style.width = pct + '%';
-        if (i % 3 === 0 || i === totalPages) {
-          statusEl.textContent = `Extracting text... ${i}/${totalPages}`;
-        }
+        if (i % 5 === 0) statusEl.textContent = `Scanning... ${i}/${totalPages}`;
+      }
+
+      detectRunningHeaders(rawData2.map(d => d.rawLines));
+
+      // Pass 2: process into paragraphs
+      for (let i = 0; i < rawData2.length; i++) {
+        const { tc, vp } = rawData2[i];
+        allPages.push(tc && vp ? processPageText(tc, vp) : []);
+        const pct = 50 + Math.round(((i + 1) / rawData2.length) * 50);
+        progressFill.style.width = pct + '%';
+        if (i % 5 === 0) statusEl.textContent = `Formatting... ${i + 1}/${totalPages}`;
       }
 
       textExtracted = true;
