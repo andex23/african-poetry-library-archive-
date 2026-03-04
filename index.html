@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ọbá Akwụkwọ | African Writers Digital Library</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #0a0a0a;
+    --bg-card: #141414;
+    --bg-card-hover: #1a1a1a;
+    --accent-gold: #c8a45c;
+    --accent-copper: #b87333;
+    --accent-warm: #d4956a;
+    --text-primary: #f0ece4;
+    --text-secondary: #a09888;
+    --text-muted: #6b6058;
+    --border-subtle: #2a2420;
+    --border-accent: #3d3228;
+    --tag-novel: #2d4a3e;
+    --tag-novel-text: #6bc9a0;
+    --tag-poetry: #3e2d4a;
+    --tag-poetry-text: #b98ce0;
+    --tag-stories: #4a3d2d;
+    --tag-stories-text: #d4a66a;
+    --tag-plays: #2d3a4a;
+    --tag-plays-text: #6aaid4;
+    --tag-memoir: #4a2d38;
+    --tag-memoir-text: #d46a8a;
+    --tag-anthology: #2d4a47;
+    --tag-anthology-text: #6ad4cc;
+    --tag-essays: #4a442d;
+    --tag-essays-text: #d4cc6a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══════════════ HERO ═══════════════ */
+  .hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200, 164, 92, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 20% 80%, rgba(184, 115, 51, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 149, 106, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8a45c' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .hero-ornament {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .hero-ornament::before {
+    content: '◆';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent-gold);
+    font-size: 10px;
+    background: var(--bg-deep);
+    padding: 0 12px;
+  }
+
+  .hero-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent-gold);
+  }
+
+  .hero-subtitle {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--accent-gold);
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 2.2rem;
+    background: transparent;
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.4s ease;
+  }
+  .hero-cta:hover {
+    background: var(--accent-gold);
+    color: var(--bg-deep);
+  }
+  .hero-cta svg { width: 14px; height: 14px; transition: transform 0.3s; }
+  .hero-cta:hover svg { transform: translateY(3px); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .scroll-hint .line {
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, var(--text-muted), transparent);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ═══════════════ TOOLBAR ═══════════════ */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 1rem 2rem;
+    transition: box-shadow 0.3s;
+  }
+  .toolbar.scrolled {
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+
+  .toolbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--accent-gold);
+    white-space: nowrap;
+    margin-right: auto;
+  }
+
+  .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 420px;
+    min-width: 200px;
+  }
+  .search-box svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 0.65rem 1rem 0.65rem 2.6rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all 0.3s;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box input:focus {
+    border-color: var(--accent-gold);
+    background: rgba(200, 164, 92, 0.04);
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 0.45rem 0.9rem;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--text-secondary); color: var(--text-secondary); }
+  .filter-btn.active {
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+    color: var(--bg-deep);
+    font-weight: 600;
+  }
+
+  .results-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 0.5rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .results-count span { color: var(--accent-gold); font-weight: 600; }
+
+  /* ═══════════════ GRID ═══════════════ */
+  .library {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem 4rem;
+  }
+
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .book-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: default;
+  }
+  .book-card:hover {
+    background: var(--bg-card-hover);
+    z-index: 2;
+  }
+
+  .book-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .book-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    min-width: fit-content;
+  }
+
+  .book-tag {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tag-novel { background: rgba(107, 201, 160, 0.1); color: #6bc9a0; }
+  .tag-poetry { background: rgba(185, 140, 224, 0.1); color: #b98ce0; }
+  .tag-stories { background: rgba(212, 166, 106, 0.1); color: #d4a66a; }
+  .tag-plays { background: rgba(106, 170, 212, 0.1); color: #6aaad4; }
+  .tag-memoir { background: rgba(212, 106, 138, 0.1); color: #d46a8a; }
+  .tag-anthology { background: rgba(106, 212, 204, 0.1); color: #6ad4cc; }
+  .tag-essays { background: rgba(212, 204, 106, 0.1); color: #d4cc6a; }
+
+  .book-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+
+  .book-author {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .book-author strong {
+    color: var(--accent-warm);
+    font-weight: 500;
+  }
+
+  .book-format {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .book-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .btn-action {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-action svg { width: 13px; height: 13px; }
+  .btn-action:hover {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    background: rgba(200, 164, 92, 0.05);
+  }
+  .btn-action.btn-primary {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+  }
+  .btn-action.btn-primary:hover {
+    background: var(--accent-gold);
+    color: var(--bg-deep);
+  }
+
+  /* ═══════════════ EMPTY STATE ═══════════════ */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-card);
+  }
+  .empty-state svg { width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.5; }
+  .empty-state h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+  .empty-state p { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* ═══════════════ FOOTER ═══════════════ */
+  .footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .footer-ornament {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+    margin: 0 auto 1.5rem;
+  }
+  .footer p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .footer a {
+    color: var(--accent-gold);
+    text-decoration: none;
+  }
+  .footer a:hover { text-decoration: underline; }
+
+  /* ═══════════════ BACK TO TOP ═══════════════ */
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 44px;
+    height: 44px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-gold);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 50;
+  }
+  .back-to-top.visible { opacity: 1; transform: translateY(0); }
+  .back-to-top:hover { background: var(--accent-gold); color: var(--bg-deep); }
+  .back-to-top svg { width: 18px; height: 18px; }
+
+  /* ═══════════════ RESPONSIVE ═══════════════ */
+  @media (max-width: 768px) {
+    .hero { min-height: 80vh; }
+    .hero-stats { gap: 2rem; }
+    .toolbar-inner { gap: 0.8rem; }
+    .toolbar-brand { display: none; }
+    .search-box { max-width: 100%; min-width: 100%; order: -1; }
+    .filter-group { width: 100%; }
+    .book-grid { grid-template-columns: 1fr; }
+    .library { padding: 1rem 1rem 4rem; }
+    .toolbar { padding: 0.8rem 1rem; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats { flex-direction: column; gap: 1rem; }
+    .book-actions { flex-direction: column; }
+  }
+
+  /* ═══════════════ ANIMATIONS ═══════════════ */
+  .fade-in {
+    animation: fadeIn 0.6s ease both;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-pattern"></div>
+  <div class="hero-ornament"></div>
+  <div class="hero-label">Ọbá Akwụkwọ</div>
+  <h1>African Writers<br><em>Library</em></h1>
+  <p class="hero-subtitle">A digital library preserving the literary heritage of Africa</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="bookCount">150</div>
+      <div class="hero-stat-label">Works</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="authorCount">98</div>
+      <div class="hero-stat-label">Authors</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">2</div>
+      <div class="hero-stat-label">Formats</div>
+    </div>
+  </div>
+  <a href="#library" class="hero-cta">
+    Browse Collection
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </a>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ TOOLBAR ═══════════════ -->
+<div class="toolbar" id="toolbar">
+  <div class="toolbar-inner">
+    <div class="toolbar-brand">AWS Library</div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by title, author, or keyword...">
+    </div>
+    <div class="filter-group" id="filterGroup">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="novel">Novels</button>
+      <button class="filter-btn" data-filter="stories">Stories</button>
+      <button class="filter-btn" data-filter="poetry">Poetry</button>
+      <button class="filter-btn" data-filter="plays">Plays</button>
+      <button class="filter-btn" data-filter="memoir">Memoir</button>
+      <button class="filter-btn" data-filter="anthology">Anthology</button>
+      <button class="filter-btn" data-filter="essays">Essays</button>
+    </div>
+  </div>
+</div>
+
+<div class="results-count" id="resultsCount"></div>
+
+<!-- ═══════════════ LIBRARY GRID ═══════════════ -->
+<section class="library" id="library">
+  <div class="book-grid" id="bookGrid"></div>
+</section>
+
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+  <div class="footer-ornament"></div>
+  <p>
+    Ọbá Akwụkwọ — African Writers Digital Library<br>
+    Preserving and sharing African literary heritage<br><br>
+    Source: <a href="https://drive.google.com/drive/folders/1dnrgcBy9-45_8lHfYM4ncowVdoUzaOKz" target="_blank" rel="noopener">Google Drive Collection</a>
+  </p>
+</footer>
+
+<!-- ═══════════════ BACK TO TOP ═══════════════ -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+// ═══════════════ BOOK DATA ═══════════════
+const books = [
+  {id:"1tHJWwQe0T4iCd1kiZboZ7BAeJKzFR36I",name:"Agnes Sam - Jesus Is Indian and Other Stories.pdf"},
+  {id:"1YW_ifADMlQgYraZtiBqpLmS9mfFj6xY-",name:"Ahmadou Kourouma - The Suns of Independence.pdf"},
+  {id:"1z3EEFY1nEDS9bef_6arfzosrK8MPxaVH",name:"Ajuma Oginga Odinga - Not Yet Uhuru_ The Autobiography of Oginga Odinga.pdf"},
+  {id:"1rav-j6qquJ7NYXY9DD4Xv2J5QMxvEoZ-",name:"Albert W. Kayper-Mensah - The Drummer in Our Time_ Poems.pdf"},
+  {id:"1R_1ZWwbieWGy2itVEcZvKVm3fXF52cyJ",name:"Alex La Guma - A Walk in the Night and other Stories.pdf"},
+  {id:"1udW1-pXLty87kYB5dVsrcJ5PqzbpMil3",name:"Alex La Guma - In the Fog of the Seasons_ End.epub"},
+  {id:"10yLjt5tetYOV2XV0wFBjeGaPm0SR6IxX",name:"Alex La Guma - Time of the Butcherbird.epub"},
+  {id:"1D3QcQnTA1QdJs9_83RYo_0dHF0YNeh0Y",name:"Ali Jahadmy & Ali Ahmed Jahadhmy & Ali Jahadhmy - Anthology of Swahili Poetry.pdf"},
+  {id:"1mZbmpFgLQZDa-A44WIY4rjBmtyDbj8KW",name:"Amechi Nicholas Akwanya - Orimili.pdf"},
+  {id:"1JNfCiXO-wBlFNPi9JZOLZxAWcToUM6eR",name:"Amílcar Cabral - Unity Struggle_ Selected Speeches and Writings.pdf"},
+  {id:"1qVSfLUkxFdpcuJhC-rG-r8_m-WVeL4HS",name:"Amu Djoleto - The Strange Man.pdf"},
+  {id:"1tJcmWzHuPG_qtJQ8xlhtov0DP0i7RPE6",name:"Angus Calder - Summer Fires_ New Poetry of Africa.pdf"},
+  {id:"1ILKNOVFW87r0ko8cvVvO8NV083Xov3Mc",name:"Asare Konadu - A Woman in Her Prime.pdf"},
+  {id:"1zGsoJ3iNri3islBiSrcjoWjp0zS9-zWR",name:"Asare Konadu & Samuel Asare Konadu - Ordained by the Oracle.pdf"},
+  {id:"1nW6rThEPY7rKM1rPNa0xGoUbreb3ZIAZ",name:"Aubrey Kachingwe - No Easy Task.pdf"},
+  {id:"1qitvZt1ySVue6DlWbf2sCvcdcEGYjnWj",name:"Ayi Kwei Armah - The Beautyful Ones Are Not Yet Born.epub"},
+  {id:"1y8zAqN7IJGzSuzL4jRXmMnUFtglfJZzx",name:"Barry Feinberg - Poets to the People_ South African Freedom Poems.pdf"},
+  {id:"1g8lq4kDVPPm3TOxUEp5HhG8Av-8sdSkB",name:"Benjamin Kwakye - The Clothes of Nakedness.epub"},
+  {id:"1kqmlbuoszsrD5AaDqsg3RAkMuQ_dxn3Z",name:"Bernard Binlin Dadié - Climbié.pdf"},
+  {id:"1RkJc-nPesAw5Y-TQzcFL5XAs5lrmXXps",name:"Bessie Head - A Woman Alone_ Autobiographical Writings.pdf"},
+  {id:"182vZlYsOu03W1A5QYUYH7XrQSKTTPlay",name:"Bessie Head - Maru.pdf"},
+  {id:"18dJYArVbuTq9A3APp_Kl86sqpsvpg0kA",name:"Bessie Head - Serowe, Village of the Rainwind.epub"},
+  {id:"17ycXmCRAQJWPcMw8YevQSTF-aiVB5RlK",name:"Bessie Head - Tales of Tenderness and Power.pdf"},
+  {id:"1o7qtglQCt87PR9M8PIom0EbYE2GU9gCd",name:"Bessie Head - The Cardinals.pdf"},
+  {id:"1-3fI7qFgDc94OnNScKF6qbC-HOhun6PC",name:"Bessie Head - The Collector of Treasures and Other Botswana Village Tales.pdf"},
+  {id:"1sbjekVzjh34v8CzZAST7gu28lChTJdsm",name:"Binwell Sinyangwe - A Cowrie of Hope.epub"},
+  {id:"1FmITFXnJ1iBQb1T7wuJi3h25_K2O1XKQ",name:"Biyi Bandele-Thomas - The Sympathetic Undertaker and Other Dreams.pdf"},
+  {id:"1ukitzGDG9gwOYAlDU0SLYAhmj-mwhCkq",name:"Buchi Emecheta - Destination Biafra.pdf"},
+  {id:"14M72cGJXDk_BUqFhNYsv10IIRuuaAX0S",name:"Buchi Emecheta - The Family.pdf"},
+  {id:"1rDf-hoPiIeVScZ7v7ylB8hKWPGZHFrsJ",name:"Buchi Emecheta - The New Tribe.pdf"},
+  {id:"1KiqK6Pef0MXXDwtaxQBCuCDDL6-OuIT3",name:"Can Themba - The Will to Die.pdf"},
+  {id:"1ciMG6Fw40ZntLYhclAmr5vI2bmh7OiF2",name:"Charlotte H. Bruner - The Heinemann Book of African Women_s Writing.pdf"},
+  {id:"1eEu_Ul4bhxbaXbBI8Tc0ogbtQ4lR_uTx",name:"Cheikh Hamidou Kane - Ambiguous Adventure.pdf"},
+  {id:"1xUcTmISpTySmrdxdaPYG4ht7lp008lIs",name:"Chenjerai Hove - Bones.pdf"},
+  {id:"17ildQ_nKt8lYIccGAUulvMsYyzGHznlg",name:"Chinua Achebe - Heinemann Book of Contemporary African Short Stories.pdf"},
+  {id:"1_XitjYw1jy3i4U7xGGeJyeDtVbepGvjs",name:"Chinua Achebe & C. L. Innes - African Short Stories (African Writers Series).pdf"},
+  {id:"16m8jbAAQL4d0Pd9FWtb8PTFVdSn4bQkg",name:"Cosmo Pieterse - Five African Plays.pdf"},
+  {id:"1xYLUn4lxQQTNAgNiSajxTgR-CkAYxW7F",name:"Cosmo Pieterse - Seven South African Poets_ Poems of Exile.pdf"},
+  {id:"1GtgmvX6sg58EMjtGytdRxBwkgjPhtmFy",name:"Cosmo Pieterse - Short African Plays.pdf"},
+  {id:"18mKPw3DM-6uKVl8PiYqZ5W_CCf2HG3nF",name:"Cosmo Pieterse - Ten One-Act Plays.pdf"},
+  {id:"16byn_KPx7bXBxELZ1wmd0M4ywpQqH5-R",name:"Cyprian Ekwensi - Restless City and Christmas Gold, with Other Stories.pdf"},
+  {id:"1eIrURIA1jG-K2RDa5sU14x-Vqromt8fb",name:"Cyprian Ekwensi - Survive the Peace.pdf"},
+  {id:"1Z0sOw890esjG1a8VF7XzhJu_8zocIgeI",name:"D. M. Zwelonke - Robben Island.pdf"},
+  {id:"1inWzxgigh8gEqrCeJdB-QCpO9fP1SUjU",name:"Dambudzo Marechera - Black Sunlight.epub"},
+  {id:"1KG9d7dcqloUeH8AmgYJwVUZzu-wsAK5y",name:"Dambudzo Marechera - The House of Hunger.epub"},
+  {id:"1POasQVfe8ztasKbNcMws_yfwFfIRTNdv",name:"Daniachew Worku & Dāñāčaw Warqu - The Thirteenth Sun.pdf"},
+  {id:"1cnuUFvd68VUnTM_1lgdO26fUcFRYDUUL",name:"Daniel M. Mengara - Mema.epub"},
+  {id:"1h0rabx_cyhpqfc6q616YfcdDRqtv5A-w",name:"David & Lee Cook - Short East African Plays in English.pdf"},
+  {id:"1tYT589Ha0wn6qrsGSAQg_ineUYmm1TWQ",name:"David Cook - Origin East Africa_ A Makerere Anthology.pdf"},
+  {id:"17ZduvojZPo93brxVk6hchX7hA6BB_sVG",name:"David Cook & David Rubadiri - Poems From East Africa.pdf"},
+  {id:"17Djmfapu1CYmvEBHWJv1uZ4qR13wL78h",name:"Denis Hirson & Martin Trump - The Heinemann Book of South African Short Stories.pdf"},
+  {id:"1pu_AU595mP0a8WwMJNgvGnTfN9VvfauE",name:"Dennis Brutus - A Simple Lust_ Selected Poems.pdf"},
+  {id:"1wCNQ4LZMYlM_Rguua4MIBDvh_ihYeEEn",name:"Denys Johnson-Davies - Egyptian short stories.pdf"},
+  {id:"1RpuSJxjWp3EsNkpU4BCER32PtrsCEXDN",name:"Dominic Mulaisho - The Smoke That Thunders.pdf"},
+  {id:"1Ea9A3oiivI6Rylg_w75MTc1f7Ri_v2MH",name:"Dominic Mulaisho - The Tongue of the Dumb.pdf"},
+  {id:"1L_61hX45jSfOnz_sKD7Nh8D1nMqNkNuJ",name:"Donatus Nwoga - Igbo Traditional Verse (African Writers Series).pdf"},
+  {id:"1GNYXahC7jqS8r2Gx0ag30TWeNQ_sL12r",name:"Doris Lessing - The Grass Is Singing.epub"},
+  {id:"1YYIXGp_bx6jQoGR59LETI4CN809N-gEC",name:"Driss Chraïbi - Heirs to the Past.pdf"},
+  {id:"1ZXOzN6W-YxHhekYqOXfMZZm7g55p6Ua-",name:"E. E. Sule - Sterile Sky.pdf"},
+  {id:"1hasjztyZbNN7E4dVqI5j_cblMGEDjnY6",name:"Eddie Iroh - Forty-Eight Guns for the General.pdf"},
+  {id:"11fQfO5eqL3EQyH_xy6IqzFy8M3qGe8-8",name:"Eddie Iroh - Toads of War.pdf"},
+  {id:"1MYj-jOC7zt4HlmB65PI2457dDZLY8ixm",name:"Elechi Amadi - Estrangement.pdf"},
+  {id:"1DttUeFnyLGW_4WNf0dwL3gqulQBv-sS3",name:"Elechi Amadi - Sunset in Biafra_ A Civil War Diary.pdf"},
+  {id:"1vM3v3i_MVGyVzMLSWav9rFeQJxBix9Er",name:"Elechi Amadi - The Great Ponds.pdf"},
+  {id:"1nHN1kzW8FdvLAvrgy50LIjO236aC3RPi",name:"Elechi Amadi - The Slave.pdf"},
+  {id:"1MU_CRkVRoCOSO000hrF7HHCesRudGl7-",name:"Evelyne Accad - Wounding Words_ A Woman_s Journal in Tunisia.pdf"},
+  {id:"17Kgaf3ff1qvGGICgbe1yTvj6eR9E3Z3F",name:"Farida Karodia - A Shattering of Silence.pdf"},
+  {id:"1eWg3U7jxy4WtGxxZYh0hmIzocjunKUKZ",name:"Farida Karodia - Coming Home and Other Stories.pdf"},
+  {id:"15pGn1tnwD83PxckhVWfUUWk57Szfkht-",name:"Fatḥī Ghānim - The Man Who Lost His Shadow_ A Novel in Four Books.pdf"},
+  {id:"193wY3seiPJcJNoAVsyKYeRSq8gduxtRI",name:"Ferdinand Oyono - Houseboy.pdf"},
+  {id:"1uk2IQhlgFkOpiWR_JHKIPhlRgwDLxSCf",name:"Ferdinand Oyono - The Old Man and the Medal.pdf"},
+  {id:"1rcEQNnnnd3nFGJFjh-iGvEIDOIMEzAjd",name:"Flora Nwapa - Idu.pdf"},
+  {id:"1yV4bKsoOuRhptbX0E2rr5zVxiRcZgyUs",name:"Francis Bebey - Agatha Moudio_s Son.pdf"},
+  {id:"19Q8L6dfWQNbfxitLxRf4Io3xJ1wwYCJj",name:"Francis Bebey - The Ashanti Doll.pdf"},
+  {id:"16z8jZLf6YJnyuyuWcySZbgPST4B2cYbu",name:"Francis Selormey - The Narrow Path_ An African Childhood.pdf"},
+  {id:"1k6oXEVNv9GlmQtn8sGx7jvnqj7taYzij",name:"Gabriel Okara - The Voice.pdf"},
+  {id:"1WA67ybLHPYFU9fDRELX7PBfVKiRGCkzD",name:"Gaele Sobott-Mogwe - Colour me Blue.pdf"},
+  {id:"1g1G3r_w1TRhhsCPRsq5Ye48-nw5qZmdt",name:"GWYNETH HENDERSON - African Theatre_ Eight Prize-Winning Plays for Radio.pdf"},
+  {id:"1w9JV3Mvme_yooo6T2DVGeNN1wLO9RO0c",name:"GWYNETH HENDERSON - Nine African Plays for Radio.pdf"},
+  {id:"1V7FfIg7uih6zV3Z2qvtkl3j1FH2P5P-X",name:"Ham Mukasa - Uganda_s Katikiro in England.pdf"},
+  {id:"1B9VbVVy5B4trAbUwJpNdIaf8-TCKA0ff",name:"Hama Tuma - The Case of the Socialist Witchdoctor and Other Stories.pdf"},
+  {id:"16Wy-J6kCTUwmuFJPzp1s8LdBAJiqL4F5",name:"Henri Lopes - Tribaliks_ Contemporary Congolese Stories.pdf"},
+  {id:"1EYMqPvhnznjzPvqXvkSWL5DPefbKMu_9",name:"Hugh Lewin - Bandiet Out of Jail_ Seven Years in a South African Prison.pdf"},
+  {id:"1upk2YSGrEvrto-bDu0xwuin4-15rxh6f",name:"I. N. C. Aniebo - The Anonymity of Sacrifice.pdf"},
+  {id:"1FTa38fHcI9MgoAT9G8hGShXzleOl_9TG",name:"I. N. C. Aniebo - The Journey Within.pdf"},
+  {id:"1f3kmNBIIQtP_JCOdWcYYiSQ7pXZsPLd0",name:"I.N.C. Aniebo - Of Wives, Talismans and the Dead.epub"},
+  {id:"12ehO2BpWGhoA7gwj9JZMdDN9uVT9az07",name:"Jack Mapanje - Of Chameleons and Gods.pdf"},
+  {id:"1zI6S0oC8UIKxCF0AwHBUq7wRPuAed3Dp",name:"Jack Mapanje - The Chattering Wagtails of Mikuyu Prison.pdf"},
+  {id:"1rfXbw4_gDKqVmQAknpuNsSPHVlU6L6Sv",name:"Jamal Mahjoub - In the Hour of Signs.pdf"},
+  {id:"1fulrRu6-bjS9YAuEZGOTna0y4EUUDuHs",name:"Jamal Mahjoub - Wings of Dust.epub"},
+  {id:"1Yl04EACe-vNn7GhLvCtVHUP55otr1Lfz",name:"Jared Angira - Silent Voices_ Poems.pdf"},
+  {id:"1Yod0SzsPrJ_DyKv6BcFFHz-GBkMXfV4o",name:"Joe De Graft - Beneath the Jazz and Brass.pdf"},
+  {id:"1mZePVV_ZOD_ROJI2wEYjYM0gydKEw2mx",name:"John Munonye - Bridge to a Wedding.pdf"},
+  {id:"1cFjZJFs2X2q5hdsNLEVo3oGcinFAlY_X",name:"John Munonye - Obi.pdf"},
+  {id:"1dgQvJ-sdVrdQXUcL1QKVhfbpspC3M717",name:"John Nagenda - The Seasons of Thomas Tebo.pdf"},
+  {id:"1AeG6LWD36BleVKooBSSxUu_jNebx_XPI",name:"John O. Reed & Clive Wake - A Book of African Verse_ The Well-Known Anthology.pdf"},
+  {id:"15PMCI-4ZmoLWGdmEMNlsP-XqkO0U1gwg",name:"John Okechukwu Munonye - A Dancer of Fortune.pdf"},
+  {id:"1c_NL_Bg4eNbAtCWw9VnWHoozBlO6DWp4",name:"John Okechukwu Munonye - A Wreath for the Maidens.pdf"},
+  {id:"1S3bPRkIVFkDzsbHhcCdy2y-GcXqAZxnf",name:"John Okechukwu Munonye - Oil Man of Obange.pdf"},
+  {id:"15mlgGEJeCrgeemnZbN2Zpyutmp9cpx3D",name:"John Reed - French African Verse (African Writers Series).pdf"},
+  {id:"19R213rtelkrqvxg29BmL50x2EEchAz3a",name:"John Ya-Otto & Ole Gjerstad & Michael Mercer - Battlefront Namibia_ An Autobiography.pdf"},
+  {id:"1mLZCQm_j-fNadhSaltuvVk1-GsbRT1lt",name:"Jomo Kenyatta - Facing Mount Kenya_ The Traditional Life of the Gikuyu.pdf"},
+  {id:"1kqbKqA71kLHsoIromrFSxRGSrbwPr80R",name:"José Luandino Vieira - The Real Life of Domingos Xavier.pdf"},
+  {id:"1Qy3xx3MeyBgIUzR7Rf6_0TCotfS-FLId",name:"José Luandino Vieira & José Vieira Mateus Da Graça - Luuanda_ Short Stories of Angola.pdf"},
+  {id:"1OL2ne8tUB_ZNwD5RLtErlTu3B3J9mhR2",name:"Kenneth D. Kaunda - Zambia Shall Be Free_ An Autobiography.pdf"},
+  {id:"1XEcFDizOD3wc0Wy-NMNo4wK7hIq1ukQe",name:"Kofi Anyidoho - A Harvest of Our Dreams With Elegy for the Revolution.pdf"},
+  {id:"12ra5GrjE1baVTzflFEXXeajjuASw_Xk5",name:"Kofi Awoonor - This Earth, My Brother.epub"},
+  {id:"1a3p5DJGDG92G8OaJ6Ein_iPX74nJAGdr",name:"Kofi Awoonor & G. Adali-Mortty - Messages_ Poems From Ghana.pdf"},
+  {id:"1vp4AmIGzWkezkZEp_cC3VXG56muzu70c",name:"Kole Omotoso - The Combat.pdf"},
+  {id:"1uSR2td52ness2kF3WIVw-psp4cGgwb5B",name:"Lawrence Vambe - An Ill-Fated People_ Zimbabwe Before and After Rhodes_.pdf"},
+  {id:"1evP6m87VtZasQmMMzUEJzcO-fLokTrsD",name:"Leila Aboulela - The Translator.epub"},
+  {id:"10Oxjv-fzzsgPXXEvU70MaTg-tRlEhtgH",name:"len ortzen - North African Writing.pdf"},
+  {id:"1UmW1WPu5LkNFOhLhYCJ7Z0CwvbLBU9kK",name:"Lenrie Peters - Katchikali.pdf"},
+  {id:"1RpCpg-tI5H0wh-EN15u1RLoFY6FtIcUV",name:"Lenrie Peters - Satellites.pdf"},
+  {id:"1kOySSijsyjTXNIv-NXKoDL11KWRnpA_P",name:"Lenrie Peters - Selected Poetry.pdf"},
+  {id:"1fbbU8WKhK5tkj5hAUMJ85QYrTgokgE3M",name:"Lília Momplé - Neighbours_ The Story of a Murder.epub"},
+  {id:"1F4YcIyPsENE_LWGK9avu-JXlKKHA9J8E",name:"Luís Bernardo Honwana - We Killed Mangy-Dog & Other Mozambique Stories.pdf"},
+  {id:"1DddbUfc0QnyoaRt230oY3glvZZo0Y1Js",name:"M. G. Vassanji - The Gunny Sack.epub"},
+  {id:"1yfGqGkLDCuxNRxhIOuPCcA1muJbzMojS",name:"M. G. Vassanji - Uhuru Street_ Short Stories.pdf"},
+  {id:"1jNhIDjORPaA9sUMA7fQtheUiLPHuUWju",name:"Malum Amadu & Gulla Kell - Amadu_s Bundle_ Fulani Tales of Love and Djinns.pdf"},
+  {id:"1OOvNssW3VCJOlSOWkKFtRJ_e7NACeEQq",name:"Mandela, Nelson - No Easy Walk to Freedom.epub"},
+  {id:"16BK5dKERCvVMMd95ZL-Mf8ocBRVLT11e",name:"Mariama Bâ - So Long a Letter.pdf"},
+  {id:"1uFr9zPPgZh7Tjdky6qIECgqIp65q6JXQ",name:"Martha Mvungi - Three Solid Stones.pdf"},
+  {id:"1kgbGINIiJDu5TnsN0Y1KUYgxScWTqjn2",name:"Mazisi Kunene - Emperor Shaka the Great_ A Zulu Epic.pdf"},
+  {id:"1t8nX4tA45teTIcnz9rflX8xJyv2auoGb",name:"Mbella Sonne Dipoko - A Few Nights and Days.pdf"},
+  {id:"1KgYz6jH_BwFokimMI9fmIyqMn6bvlmwy",name:"Mbella Sonne Dipoko - Black & White in Love_ Poems.pdf"},
+  {id:"1Q1b-hbW0vonaKZmWSJs-iXquf75z2Sfp",name:"Mboya, Tom - The challenge of nationhood_ a collection of speeches and writings.pdf"},
+  {id:"1Ym3Zcz_-Wqku5ouoPkk6GBzxLnY2gbp1",name:"Meja Mwangi - Baba Pesa_ Striving for the Wind.pdf"},
+  {id:"1oQoHSu8vpmuWhZLm1_lIcdPNiywFTUuz",name:"Meja Mwangi - Carcase for Hounds.pdf"},
+  {id:"1PUFZTm3jEI5hIVIqrbNOuR8BMfwUcMoo",name:"Meja Mwangi - Going Down River Road.pdf"},
+  {id:"1zmyfRnfyGDswxQHbR9qnsoOC8RUxbmrs",name:"Mia Couto - Every Man Is a Race.pdf"},
+  {id:"1t4d6vXnjgcWeFRHoJvOY22RQua5tiksM",name:"Mia Couto - Voices Made Night.pdf"},
+  {id:"195Ax8xC8dVSbK71mOqfqYU8V3m8h9baL",name:"Michael Etherton - African Plays for Playing.pdf"},
+  {id:"1wlB647BV57G8LYgnNo7RZ5QasTFe_F-V",name:"Modikwe Dikobe - The Marabi Dance.pdf"},
+  {id:"1e2LXyJyGzEllrxmsLlRda5LxEaDhvrF6",name:"Molefe Pheto - And Night Fell_ Memoirs of a Political Prisoner in South Africa.pdf"},
+  {id:"143stb0MthRQFiHDz2lcwnna-zQIRJ-Vq",name:"Mongane Wally Serote - Selected Poems.pdf"},
+  {id:"1_WAzHQLTbw8G7WmmMFKn7Xxujeuq3PA7",name:"Mongane Wally Serote - To Every Birth its Blood_ A Novel.pdf"},
+  {id:"1VoTgo1nrZ4O0LMGWur07jydkUlOZxdaW",name:"Mongo Beti - King Lazarus_ A Novel.pdf"},
+  {id:"13a2QMLJikI0HfUT5aGKJ15mOkHylmpQ-",name:"Mongo Beti - King Lazarus.pdf"},
+  {id:"1Ps22ZhNnXHUjU9lgiWGa86x66NV3mZ3f",name:"Mongo Beti - The Poor Christ of Bomba.pdf"},
+  {id:"1dp-OochGSqpBoEmElzJEq20s063FHBJN",name:"Mothobi - Africa south contemporary writings.pdf"},
+  {id:"1mbi5BUUjcSIyYbLJZek-Uneu67bxXeRH",name:"Mukotani Rugyendo - The Barbed Wire_ & Other Plays (1).pdf"},
+  {id:"1GQ30b7pgnuV5xazrKhpKZBEb-KIR0ATc",name:"Musaemura Zimunya & Peter Porter & Kofi Anyidoho - Fate of Vultures_ New Poetry of Africa.pdf"},
+  {id:"1XMNFi6KPRvyR-I8Z-b_20KSsAjyI6Q3I",name:"Mwangi Ruheni - The Future Leaders.pdf"},
+  {id:"1qKigf2eosiwuuseOZMoDdcqYNcf1Lfux",name:"Nadine Gordimer - Crimes of Conscience.pdf"},
+  {id:"1FJgt5nI3rhnB9h-VMbZj0CqBUGpX7kCZ",name:"Nadine Gordimer - Some Monday for Sure.pdf"},
+  {id:"1k1hHiL3_VkL0E992LCfqznnbQ01TF4kp",name:"Naguib Mahfouz - Midaq Alley.epub"},
+  {id:"11JNWDGnILgUEL-V-4viGKWJ0lozv5uup",name:"Najīb Maḥfūẓ - Children of Gebelawi.pdf"},
+  {id:"19Sz0RbNlXylQqourDvwNCTv3KmtCe-Sg",name:"Najīb Maḥfūẓ & Naguib Mahfouz - Miramar.epub"},
+  {id:"1aCdghaO_74oefGXaIpdveigXHgKzG99Y",name:"Neshani Andreas - The Purple Violet of Oshaantu.epub"}
+];
+
+// ═══════════════ DATA PROCESSING ═══════════════
+function parseBook(raw, index) {
+  const ext = raw.name.endsWith('.epub') ? 'epub' : 'pdf';
+  const cleanName = raw.name.replace(/\.(pdf|epub)$/i, '').replace(/_/g, "'");
+
+  const dashIdx = cleanName.indexOf(' - ');
+  let author = dashIdx > -1 ? cleanName.substring(0, dashIdx).trim() : 'Unknown';
+  let title = dashIdx > -1 ? cleanName.substring(dashIdx + 3).trim() : cleanName;
+
+  // Clean up author - take primary author only
+  const ampIdx = author.indexOf(' & ');
+  const primaryAuthor = ampIdx > -1 ? author.substring(0, ampIdx).trim() : author;
+
+  // Handle "Last, First" format
+  if (primaryAuthor.includes(',') && !primaryAuthor.includes('(')) {
+    const parts = primaryAuthor.split(',').map(p => p.trim());
+    author = parts[1] ? parts[1] + ' ' + parts[0] : primaryAuthor;
+  } else {
+    author = primaryAuthor;
+  }
+
+  // If there are co-authors, note them
+  const coAuthors = ampIdx > -1 ? author.substring(ampIdx) : '';
+
+  // Categorize
+  const titleLower = title.toLowerCase();
+  const nameLower = raw.name.toLowerCase();
+  let genre = 'novel';
+
+  if (/\bpoe(m|t|try|ms|ets)\b/i.test(titleLower) || /\bverse\b/i.test(titleLower) || /\bsonnets?\b/i.test(titleLower) || /\blust\b.*\bpoems?\b/i.test(titleLower) || /\belegy\b/i.test(titleLower)) {
+    genre = 'poetry';
+  } else if (/\bplay(s)?\b/i.test(titleLower) || /\btheatre\b/i.test(titleLower) || /\bdrama\b/i.test(titleLower) || /\bone-act\b/i.test(titleLower)) {
+    genre = 'plays';
+  } else if (/\bstories\b/i.test(titleLower) || /\btales\b/i.test(titleLower)) {
+    genre = 'stories';
+  } else if (/\b(autobiography|memoir|diary|journal|prison|jail)\b/i.test(titleLower) || /\bshall be free\b/i.test(titleLower) || /\bnot yet uhuru\b/i.test(titleLower) || /\bfacing mount kenya\b/i.test(titleLower) || /\bwoman alone\b/i.test(titleLower)) {
+    genre = 'memoir';
+  } else if (/\banthology\b/i.test(titleLower) || /\bcollection\b/i.test(titleLower) || /\bheinemann book\b/i.test(titleLower) || /\bbook of\b/i.test(titleLower) || /\borigin east\b/i.test(titleLower) || /\bmessages\b/i.test(titleLower)) {
+    genre = 'anthology';
+  } else if (/\b(speeches|writings|essays|struggle|challenge of nationhood|contemporary writings)\b/i.test(titleLower)) {
+    genre = 'essays';
+  }
+
+  // Clean title - remove subtitle markers
+  title = title.replace(/\(African Writers Series\)/i, '').replace(/\(\d+\)/, '').trim();
+
+  return {
+    id: raw.id,
+    title,
+    author,
+    fullAuthor: cleanName.substring(0, dashIdx > -1 ? dashIdx : 0).trim(),
+    format: ext.toUpperCase(),
+    genre,
+    index: index + 1,
+    viewUrl: 'https://drive.google.com/file/d/' + raw.id + '/view',
+    readUrl: ext === 'pdf'
+      ? 'https://drive.google.com/file/d/' + raw.id + '/preview'
+      : 'https://drive.google.com/file/d/' + raw.id + '/view',
+    downloadUrl: 'https://drive.google.com/uc?export=download&id=' + raw.id
+  };
+}
+
+const processedBooks = books.map(parseBook);
+
+// Count unique authors
+const uniqueAuthors = new Set(processedBooks.map(b => b.author));
+document.getElementById('authorCount').textContent = uniqueAuthors.size;
+document.getElementById('bookCount').textContent = processedBooks.length;
+
+// ═══════════════ GENRE LABELS ═══════════════
+const genreLabels = {
+  novel: 'Novel', poetry: 'Poetry', stories: 'Short Stories',
+  plays: 'Drama', memoir: 'Memoir', anthology: 'Anthology', essays: 'Essays & Speeches'
+};
+
+// ═══════════════ RENDERING ═══════════════
+function createBookCard(book) {
+  return `
+    <div class="book-card fade-in" data-genre="${book.genre}">
+      <div class="book-card-top">
+        <span class="book-number">${String(book.index).padStart(3, '0')}</span>
+        <span class="book-tag tag-${book.genre}">${genreLabels[book.genre]}</span>
+      </div>
+      <div class="book-title">${escapeHtml(book.title)}</div>
+      <div class="book-author">by <strong>${escapeHtml(book.author)}</strong></div>
+      <div class="book-format">${book.format} Format</div>
+      <div class="book-actions">
+        <a href="${book.viewUrl}" target="_blank" rel="noopener" class="btn-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          View
+        </a>
+        <a href="reader.html?id=${book.id}&title=${encodeURIComponent(book.title)}&format=${book.format}" class="btn-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Read
+        </a>
+        <a href="${book.downloadUrl}" class="btn-action btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+function renderBooks(filtered) {
+  const grid = document.getElementById('bookGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <h3>No books found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>`;
+  } else {
+    grid.innerHTML = filtered.map(createBookCard).join('');
+  }
+  document.getElementById('resultsCount').innerHTML =
+    `Showing <span>${filtered.length}</span> of <span>${processedBooks.length}</span> works`;
+}
+
+
+// ═══════════════ FILTERING & SEARCH ═══════════════
+let currentFilter = 'all';
+let currentSearch = '';
+
+function applyFilters() {
+  let filtered = processedBooks;
+
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(b => b.genre === currentFilter);
+  }
+
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    filtered = filtered.filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q) ||
+      b.fullAuthor.toLowerCase().includes(q) ||
+      b.genre.includes(q)
+    );
+  }
+
+  renderBooks(filtered);
+}
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value.trim();
+  applyFilters();
+});
+
+// Filter buttons
+document.getElementById('filterGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.filter;
+  applyFilters();
+});
+
+// ═══════════════ SCROLL EFFECTS ═══════════════
+const toolbar = document.getElementById('toolbar');
+const backToTop = document.getElementById('backToTop');
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY > 50;
+  toolbar.classList.toggle('scrolled', scrolled);
+  backToTop.classList.toggle('visible', window.scrollY > 600);
+});
+
+// ═══════════════ INITIAL RENDER ═══════════════
+renderBooks(processedBooks);
+</script>
+</body>
+</html>

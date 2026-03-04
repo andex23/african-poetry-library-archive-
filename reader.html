@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading...</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,300;1,7..72,400&family=Inter:wght@300;400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300;1,8..60,400&family=DM+Serif+Display&family=IBM+Plex+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1a1a;
+    --text: #d4d0c8;
+    --text-muted: #888;
+    --accent: #c8a45c;
+    --surface: #222;
+    --surface-hover: #2a2a2a;
+    --border: #333;
+  }
+
+  .theme-light {
+    --bg: #faf8f5; --text: #2c2c2c; --text-muted: #888;
+    --surface: #fff; --surface-hover: #f5f3f0; --border: #e0ddd6;
+  }
+  .theme-sepia {
+    --bg: #f4ecd8; --text: #3b2e1a; --text-muted: #8a7a62;
+    --surface: #ebe3cc; --surface-hover: #e5dcc4; --border: #d4c9ad;
+  }
+  .theme-dark {
+    --bg: #1a1a1a; --text: #d4d0c8; --text-muted: #888;
+    --surface: #222; --surface-hover: #2a2a2a; --border: #333;
+  }
+  .theme-black {
+    --bg: #000; --text: #ccc; --text-muted: #666;
+    --surface: #111; --surface-hover: #1a1a1a; --border: #222;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  /* ═══════════ TOP BAR ═══════════ */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    transition: background 0.4s; gap: 0.6rem;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1; }
+
+  .btn-back {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.6rem; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--accent); font-size: 0.72rem; font-family: 'Inter', sans-serif;
+    cursor: pointer; text-decoration: none; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-back:hover { background: var(--surface-hover); }
+  .btn-back svg { width: 14px; height: 14px; }
+
+  .topbar-title {
+    font-family: 'Lora', serif; font-size: 0.85rem; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+
+  .topbar-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; background: transparent;
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); cursor: pointer; transition: all 0.2s;
+  }
+  .topbar-btn:hover { background: var(--surface-hover); color: var(--accent); }
+  .topbar-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .topbar-btn svg { width: 16px; height: 16px; }
+
+  /* Mode toggle pill — always visible */
+  .mode-toggle {
+    display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+  }
+  .mode-btn {
+    padding: 0.35rem 0.7rem; background: transparent; border: none;
+    color: var(--text-muted); font-family: 'Inter', sans-serif;
+    font-size: 0.68rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .mode-btn:first-child { border-right: 1px solid var(--border); }
+  .mode-btn.active { background: var(--accent); color: #000; font-weight: 600; }
+  .mode-btn:hover:not(.active) { background: var(--surface-hover); color: var(--text); }
+
+  /* ═══════════ SETTINGS PANEL ═══════════ */
+  .settings-panel {
+    position: fixed; top: 50px; right: 0; width: 300px;
+    max-height: calc(100vh - 50px); overflow-y: auto;
+    background: var(--surface); border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem; z-index: 99;
+    transform: translateX(100%); transition: transform 0.3s ease, background 0.4s;
+    border-radius: 0 0 0 12px;
+  }
+  .settings-panel.open { transform: translateX(0); }
+
+  .settings-group { margin-bottom: 1.3rem; }
+  .settings-group:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;
+  }
+
+  .settings-row { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+  .setting-btn {
+    flex: 1; min-width: fit-content; padding: 0.4rem 0.5rem;
+    background: transparent; border: 1px solid var(--border); border-radius: 5px;
+    color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.7rem;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .setting-btn:hover { background: var(--surface-hover); }
+  .setting-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+  .theme-dots { display: flex; gap: 0.7rem; align-items: center; }
+  .theme-dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer; transition: all 0.2s; flex: none;
+  }
+  .theme-dot:hover { transform: scale(1.1); }
+  .theme-dot.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .theme-dot.dot-light { background: #faf8f5; }
+  .theme-dot.dot-sepia { background: #f4ecd8; }
+  .theme-dot.dot-dark { background: #1a1a1a; }
+  .theme-dot.dot-black { background: #000; }
+
+  .font-size-control { display: flex; align-items: center; gap: 0.7rem; }
+  .font-size-control button {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .font-size-control button:hover { background: var(--surface-hover); color: var(--accent); }
+  .font-size-value { font-size: 0.8rem; font-weight: 500; min-width: 36px; text-align: center; }
+
+  .slider-control { display: flex; align-items: center; gap: 0.5rem; }
+  .slider-control input[type="range"] {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 3px; border-radius: 2px; background: var(--border); outline: none;
+  }
+  .slider-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  .slider-label { font-size: 0.65rem; color: var(--text-muted); min-width: 20px; text-align: center; }
+
+  /* ═══════════ PDF VIEWER MODE ═══════════ */
+  .pdf-viewer {
+    position: fixed; top: 50px; left: 0; right: 0; bottom: 0;
+  }
+  .pdf-viewer iframe {
+    width: 100%; height: 100%; border: none;
+  }
+  .pdf-viewer.hidden { display: none; }
+
+  /* ═══════════ TEXT READER MODE ═══════════ */
+  .reader-container {
+    max-width: 720px; margin: 0 auto;
+    padding: 68px 2rem 50px; min-height: 100vh;
+  }
+  .reader-container.hidden { display: none; }
+
+  .reader-content {
+    line-height: 1.8; text-align: left;
+    word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0.005em;
+  }
+  .reader-content p {
+    margin-bottom: 0.3em; text-indent: 1.5em;
+  }
+  .reader-content p:first-child { text-indent: 0; }
+  .reader-content .chapter-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5em; text-align: center;
+    margin: 1.5em 0 0.8em; text-indent: 0;
+    letter-spacing: 0.02em; line-height: 1.3;
+    color: var(--text);
+  }
+  .reader-content .subheading {
+    font-weight: 600; text-align: center;
+    margin: 1.2em 0 0.6em; text-indent: 0;
+    font-size: 1.1em; letter-spacing: 0.04em;
+  }
+  .reader-content .scene-break {
+    text-align: center; margin: 1.5em 0;
+    text-indent: 0; color: var(--text-muted);
+    letter-spacing: 0.3em;
+  }
+  .reader-content .page-separator {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 2em 0; color: var(--text-muted); font-size: 0.7em;
+    text-indent: 0; letter-spacing: 0.05em;
+  }
+  .reader-content .page-separator::before,
+  .reader-content .page-separator::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .font-literata { font-family: 'Literata', 'Georgia', serif; }
+  .font-merriweather { font-family: 'Merriweather', 'Georgia', serif; }
+  .font-lora { font-family: 'Lora', 'Georgia', serif; }
+  .font-source { font-family: 'Source Serif 4', 'Georgia', serif; }
+  .font-inter { font-family: 'Inter', -apple-system, sans-serif; }
+  .font-plex { font-family: 'IBM Plex Sans', -apple-system, sans-serif; }
+  .font-mono { font-family: 'JetBrains Mono', 'Menlo', monospace; }
+
+  /* ═══════════ FILE UPLOAD SCREEN ═══════════ */
+  .upload-screen {
+    display: none; position: fixed; top: 50px; left: 0; right: 0; bottom: 0;
+    z-index: 90; background: var(--bg);
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem; text-align: center;
+  }
+  .upload-screen.active { display: flex; }
+
+  .upload-icon {
+    font-size: 3rem; margin-bottom: 1rem; opacity: 0.6;
+    line-height: 1;
+  }
+  .upload-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.4rem;
+    margin-bottom: 0.5rem; color: var(--text);
+  }
+  .upload-desc {
+    font-size: 0.82rem; color: var(--text-muted); max-width: 360px;
+    line-height: 1.6; margin-bottom: 1.5rem;
+  }
+  .upload-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+  .upload-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.6rem 1.2rem; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .upload-btn svg { width: 16px; height: 16px; }
+  .btn-download-pdf {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+  }
+  .btn-download-pdf:hover { background: var(--surface-hover); color: var(--accent); }
+  .btn-open-file {
+    background: var(--accent); border: 1px solid var(--accent); color: #000; font-weight: 600;
+  }
+  .btn-open-file:hover { filter: brightness(1.1); }
+
+  .drop-zone {
+    width: 100%; max-width: 380px; padding: 2rem 1.5rem;
+    border: 2px dashed var(--border); border-radius: 12px;
+    color: var(--text-muted); font-size: 0.75rem;
+    transition: all 0.3s; cursor: pointer;
+  }
+  .drop-zone.drag-over {
+    border-color: var(--accent); background: rgba(200, 164, 92, 0.08);
+    color: var(--accent);
+  }
+  .drop-zone p { pointer-events: none; }
+
+  .upload-status {
+    font-size: 0.72rem; color: var(--accent); margin-top: 0.8rem;
+    min-height: 1.2em;
+  }
+
+  /* ═══════════ READING PROGRESS BAR ═══════════ */
+  .reading-progress {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 0.4rem 1rem; transition: background 0.4s;
+    display: flex; align-items: center; gap: 0.7rem;
+  }
+  .reading-progress.hidden { display: none; }
+  .reading-progress-track {
+    flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .reading-progress-fill {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.15s; width: 0%;
+  }
+  .reading-progress-text {
+    font-size: 0.68rem; color: var(--text-muted); min-width: 32px; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ═══════════ LOADING ═══════════ */
+  .loading-screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--bg); z-index: 200; transition: opacity 0.5s;
+  }
+  .loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+  .loading-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1.2rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.3rem;
+    color: var(--text); margin-bottom: 0.4rem; text-align: center; padding: 0 2rem;
+  }
+  .loading-status { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* ═══════════ TEXT LOADING OVERLAY ═══════════ */
+  .text-loading {
+    display: none; position: fixed; inset: 0; z-index: 150;
+    background: var(--bg); flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .text-loading.active { display: flex; }
+  .text-loading .loading-spinner { margin-bottom: 1rem; }
+  .text-loading p { font-size: 0.8rem; color: var(--text-muted); }
+
+  .progress-bar {
+    width: 200px; height: 3px; background: var(--border);
+    border-radius: 2px; margin-top: 1rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.3s; width: 0%;
+  }
+
+  /* ═══════════ RESPONSIVE ═══════════ */
+  @media (max-width: 768px) {
+    .reader-container { padding: 60px 1.2rem 70px; }
+    .settings-panel { width: 100%; border-radius: 0; }
+    .topbar-title { font-size: 0.75rem; }
+    .mode-btn { padding: 0.3rem 0.5rem; font-size: 0.62rem; }
+  }
+  @media (max-width: 480px) {
+    .topbar-title { max-width: 80px; }
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body class="theme-dark">
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <div class="loading-title" id="loadingTitle">Opening book...</div>
+  <div class="loading-status" id="loadingStatus">Preparing viewer...</div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar" id="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Library
+    </a>
+    <div class="topbar-title" id="topbarTitle"></div>
+  </div>
+  <div class="topbar-right">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modePdf" data-mode="pdf">PDF</button>
+      <button class="mode-btn" id="modeText" data-mode="text">Text</button>
+    </div>
+    <button class="topbar-btn" id="settingsToggle" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="topbar-btn" id="fullscreenToggle" title="Fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-group">
+    <div class="settings-label">Theme</div>
+    <div class="theme-dots">
+      <div class="theme-dot dot-light" data-theme="light" title="Light"></div>
+      <div class="theme-dot dot-sepia" data-theme="sepia" title="Sepia"></div>
+      <div class="theme-dot dot-dark active" data-theme="dark" title="Dark"></div>
+      <div class="theme-dot dot-black" data-theme="black" title="Black"></div>
+    </div>
+  </div>
+  <div class="settings-group text-only-setting" id="textSettings">
+    <div class="settings-label">Font</div>
+    <div class="settings-row">
+      <button class="setting-btn active" data-font="literata">Literata</button>
+      <button class="setting-btn" data-font="lora">Lora</button>
+      <button class="setting-btn" data-font="source">Source Serif</button>
+      <button class="setting-btn" data-font="inter">Inter</button>
+    </div>
+  </div>
+  <div class="settings-group text-only-setting" id="sizeSettings">
+    <div class="settings-label">Font Size</div>
+    <div class="font-size-control">
+      <button id="fontMinus">A-</button>
+      <span class="font-size-value" id="fontSizeValue">18px</span>
+      <button id="fontPlus">A+</button>
+    </div>
+  </div>
+  <div class="settings-group text-only-setting" id="spacingSettings">
+    <div class="settings-label">Line Spacing</div>
+    <div class="slider-control">
+      <span class="slider-label">1.4</span>
+      <input type="range" id="lineHeightSlider" min="1.2" max="2.4" step="0.1" value="1.8">
+      <span class="slider-label">2.4</span>
+    </div>
+  </div>
+  <div class="settings-group text-only-setting" id="widthSettings">
+    <div class="settings-label">Text Width</div>
+    <div class="slider-control">
+      <span class="slider-label">S</span>
+      <input type="range" id="widthSlider" min="480" max="900" step="20" value="720">
+      <span class="slider-label">L</span>
+    </div>
+  </div>
+</div>
+
+<!-- PDF VIEWER -->
+<div class="pdf-viewer" id="pdfViewer">
+  <iframe id="pdfFrame" allow="autoplay"></iframe>
+</div>
+
+<!-- FILE UPLOAD SCREEN (shown when CORS fails) -->
+<div class="upload-screen" id="uploadScreen">
+  <div class="upload-icon">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+  </div>
+  <div class="upload-title">Read in Text Mode</div>
+  <div class="upload-desc">
+    Open the PDF file to extract and display as beautifully formatted text with adjustable fonts and themes.
+  </div>
+  <div class="upload-actions">
+    <a class="upload-btn btn-download-pdf" id="downloadBtn" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF First
+    </a>
+    <label class="upload-btn btn-open-file">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Open PDF File
+      <input type="file" accept=".pdf" id="fileInput" hidden>
+    </label>
+  </div>
+  <div class="drop-zone" id="dropZone">
+    <p>Or drag and drop the PDF file here</p>
+  </div>
+  <div class="upload-status" id="uploadStatus"></div>
+</div>
+
+<!-- TEXT READER -->
+<div class="reader-container hidden" id="readerContainer">
+  <div class="reader-content font-literata" id="readerContent"></div>
+</div>
+
+<!-- TEXT LOADING OVERLAY -->
+<div class="text-loading" id="textLoading">
+  <div class="loading-spinner"></div>
+  <p id="textLoadingStatus">Extracting text...</p>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- READING PROGRESS (text mode) -->
+<div class="reading-progress hidden" id="readingProgress">
+  <div class="reading-progress-track">
+    <div class="reading-progress-fill" id="readingProgressFill"></div>
+  </div>
+  <span class="reading-progress-text" id="readingProgressText">0%</span>
+</div>
+
+<script type="module">
+  // ═══════════ PARAMS ═══════════
+  const params = new URLSearchParams(window.location.search);
+  const fileId = params.get('id');
+  const bookTitle = decodeURIComponent(params.get('title') || 'Untitled');
+  const bookFormat = (params.get('format') || 'PDF').toUpperCase();
+
+  document.title = bookTitle;
+  document.getElementById('topbarTitle').textContent = bookTitle;
+  document.getElementById('loadingTitle').textContent = bookTitle;
+  document.getElementById('downloadBtn').href = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+  // ═══════════ STATE ═══════════
+  let currentMode = 'pdf';
+  let textExtracted = false;
+  let textExtracting = false;
+  let allPages = [];      // Array of arrays of paragraph objects per page
+  let totalPages = 0;
+  let pdfjsLib = null;
+
+  let settings = (() => {
+    try { return { ...defaults(), ...JSON.parse(localStorage.getItem('readerSettings')) }; }
+    catch { return defaults(); }
+  })();
+
+  function defaults() {
+    return { theme:'dark', font:'literata', fontSize:18, lineHeight:1.8, textWidth:720 };
+  }
+
+  function saveSettings() { localStorage.setItem('readerSettings', JSON.stringify(settings)); }
+
+  // ═══════════ APPLY SETTINGS ═══════════
+  function applySettings() {
+    document.body.className = `theme-${settings.theme}`;
+    document.querySelectorAll('.theme-dot').forEach(d =>
+      d.classList.toggle('active', d.dataset.theme === settings.theme));
+
+    const content = document.getElementById('readerContent');
+    content.className = `reader-content font-${settings.font}`;
+    document.querySelectorAll('[data-font]').forEach(b =>
+      b.classList.toggle('active', b.dataset.font === settings.font));
+
+    content.style.fontSize = settings.fontSize + 'px';
+    document.getElementById('fontSizeValue').textContent = settings.fontSize + 'px';
+
+    content.style.lineHeight = settings.lineHeight;
+    document.getElementById('lineHeightSlider').value = settings.lineHeight;
+
+    document.getElementById('readerContainer').style.maxWidth = settings.textWidth + 'px';
+    document.getElementById('widthSlider').value = settings.textWidth;
+
+    saveSettings();
+  }
+
+  // ═══════════ MODE SWITCHING ═══════════
+  function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('modePdf').classList.toggle('active', mode === 'pdf');
+    document.getElementById('modeText').classList.toggle('active', mode === 'text');
+
+    // Show/hide text-specific settings
+    document.querySelectorAll('.text-only-setting').forEach(el => {
+      el.style.display = mode === 'text' ? '' : 'none';
+    });
+
+    if (mode === 'pdf') {
+      document.getElementById('pdfViewer').classList.remove('hidden');
+      document.getElementById('readerContainer').classList.add('hidden');
+      document.getElementById('readingProgress').classList.add('hidden');
+      document.getElementById('textLoading').classList.remove('active');
+      document.getElementById('uploadScreen').classList.remove('active');
+    } else {
+      document.getElementById('pdfViewer').classList.add('hidden');
+
+      if (textExtracted) {
+        document.getElementById('readerContainer').classList.remove('hidden');
+        document.getElementById('readingProgress').classList.remove('hidden');
+        document.getElementById('uploadScreen').classList.remove('active');
+      } else if (!textExtracting) {
+        attemptTextExtraction();
+      }
+    }
+  }
+
+  // ═══════════ IMPROVED TEXT EXTRACTION ═══════════
+
+  // Statistical mode (most common value)
+  function statMode(arr) {
+    const freq = {};
+    let maxFreq = 0, modeVal = arr[0];
+    for (const v of arr) {
+      const r = Math.round(v);
+      freq[r] = (freq[r] || 0) + 1;
+      if (freq[r] > maxFreq) { maxFreq = freq[r]; modeVal = r; }
+    }
+    return modeVal;
+  }
+
+  // Process a single page's text content into clean paragraphs
+  function processPageText(textContent, viewport) {
+    const items = textContent.items;
+    if (!items || !items.length) return [];
+
+    const vpHeight = viewport.height;
+
+    // Normalize items with position data
+    const normalized = [];
+    for (const item of items) {
+      if (item.str === undefined) continue;
+      const text = item.str;
+      if (!text && !item.hasEOL) continue;
+      normalized.push({
+        text,
+        x: Math.round(item.transform[4]),
+        y: Math.round(vpHeight - item.transform[5]),
+        fontSize: Math.abs(Math.round(item.transform[0] || 12)),
+        fontName: item.fontName || '',
+        width: item.width || 0,
+        hasEOL: !!item.hasEOL
+      });
+    }
+
+    if (!normalized.length) return [];
+
+    // Sort by Y (top to bottom), then X (left to right)
+    normalized.sort((a, b) => a.y - b.y || a.x - b.x);
+
+    // Group into lines by Y proximity (within 4px = same line)
+    const lines = [];
+    let curLine = null;
+
+    for (const item of normalized) {
+      if (!curLine || Math.abs(item.y - curLine.y) > 4) {
+        curLine = { y: item.y, items: [], fontSize: 0, startX: 0, text: '' };
+        lines.push(curLine);
+      }
+      curLine.items.push(item);
+    }
+
+    // Process each line
+    for (const line of lines) {
+      line.items.sort((a, b) => a.x - b.x);
+
+      // Join items on the same line with smart spacing
+      let text = '';
+      for (let i = 0; i < line.items.length; i++) {
+        const item = line.items[i];
+        if (i > 0) {
+          const prev = line.items[i - 1];
+          const gap = item.x - (prev.x + prev.width);
+          // Add space if there's a significant gap between items
+          if (gap > 2 && !text.endsWith(' ') && !item.text.startsWith(' ')) {
+            text += ' ';
+          }
+        }
+        text += item.text;
+      }
+
+      line.text = text;
+      line.fontSize = line.items.length
+        ? Math.round(line.items.reduce((s, i) => s + i.fontSize, 0) / line.items.length)
+        : 12;
+      line.startX = line.items[0]?.x || 0;
+      line.isBold = line.items.some(i => /bold/i.test(i.fontName));
+      line.isItalic = line.items.some(i => /italic|oblique/i.test(i.fontName));
+    }
+
+    // Filter out empty lines
+    const contentLines = lines.filter(l => l.text.trim().length > 0);
+    if (!contentLines.length) return [];
+
+    // Detect and remove page numbers / running headers/footers
+    const filtered = contentLines.filter(line => {
+      const t = line.text.trim();
+      const isPageNum = /^\d{1,4}$/.test(t);
+      // Remove standalone page numbers anywhere (they're always isolated on their own line)
+      if (isPageNum) return false;
+      const isAtEdge = line.y < 40 || line.y > vpHeight - 40;
+      // Remove very short header/footer text at page edges
+      if (t.length < 4 && isAtEdge) return false;
+      return true;
+    });
+
+    if (!filtered.length) return [];
+
+    // Calculate statistics for paragraph detection
+    const fontSizes = filtered.map(l => l.fontSize);
+    const bodyFontSize = statMode(fontSizes);
+    const startXs = filtered.map(l => l.startX);
+    const bodyStartX = statMode(startXs);
+
+    // Calculate average line spacing
+    let totalGap = 0, gapCount = 0;
+    for (let i = 1; i < filtered.length; i++) {
+      const gap = filtered[i].y - filtered[i - 1].y;
+      if (gap > 0 && gap < 50) { totalGap += gap; gapCount++; }
+    }
+    const avgGap = gapCount > 0 ? totalGap / gapCount : 16;
+
+    // Group lines into paragraphs
+    const paragraphs = [];
+    let curPara = [];
+
+    for (let i = 0; i < filtered.length; i++) {
+      const line = filtered[i];
+
+      // Determine if this line is a header
+      const isHeader = (line.fontSize > bodyFontSize + 2) ||
+                       (line.text.trim().length < 50 && line.isBold && line.fontSize >= bodyFontSize) ||
+                       (line.text === line.text.toUpperCase() && /[A-Z]/.test(line.text) &&
+                        line.text.trim().length > 2 && line.text.trim().length < 60);
+
+      // Check for scene break markers
+      const isSceneBreak = /^[\s*\-_=~.]{3,}$/.test(line.text.trim()) ||
+                           /^\*\s*\*\s*\*/.test(line.text.trim());
+
+      if (i > 0) {
+        const prevLine = filtered[i - 1];
+        const gap = line.y - prevLine.y;
+        const isLargeGap = gap > avgGap * 1.4;
+        const isIndented = line.startX > bodyStartX + 15;
+        const prevWasHeader = (prevLine.fontSize > bodyFontSize + 2) ||
+                              (prevLine.text.trim().length < 50 && prevLine.isBold);
+
+        if (isLargeGap || isIndented || isHeader || prevWasHeader || isSceneBreak) {
+          if (curPara.length > 0) {
+            paragraphs.push(finalizeParagraph(curPara, bodyFontSize));
+            curPara = [];
+          }
+          if (isSceneBreak) {
+            paragraphs.push({ text: '* * *', type: 'scene-break' });
+            continue;
+          }
+        }
+      }
+
+      line._isHeader = isHeader;
+      curPara.push(line);
+    }
+
+    if (curPara.length > 0) {
+      paragraphs.push(finalizeParagraph(curPara, bodyFontSize));
+    }
+
+    return paragraphs;
+  }
+
+  function finalizeParagraph(lines, bodyFontSize) {
+    const allHeader = lines.every(l => l._isHeader);
+    const isHeader = allHeader || (lines.length <= 2 && lines[0]._isHeader);
+
+    // Join lines, handling hyphenation at line breaks
+    let text = '';
+    for (let i = 0; i < lines.length; i++) {
+      const lineText = lines[i].text.trim();
+      if (!lineText) continue;
+      if (i > 0 && text) {
+        if (text.endsWith('-') && /^[a-z]/.test(lineText)) {
+          // Hyphenated word at line break — join without hyphen
+          text = text.slice(0, -1) + lineText;
+        } else {
+          text += ' ' + lineText;
+        }
+      } else {
+        text = lineText;
+      }
+    }
+
+    // Note: mid-word hyphens from PDF line breaks are handled in the line-joining logic above.
+    // Remaining hyphens in text are assumed to be legitimate (compound words, prefixes, etc.)
+
+    // Clean up multiple spaces
+    text = text.replace(/\s{2,}/g, ' ').trim();
+
+    // Determine type
+    let type = 'paragraph';
+    if (isHeader) {
+      type = lines[0].fontSize > bodyFontSize + 4 ? 'chapter-heading' : 'subheading';
+      // Strip trailing page numbers from headings (e.g. "HIGH HEELS 15" → "HIGH HEELS")
+      text = text.replace(/\s+\d{1,4}$/, '');
+    }
+
+    return { text, type };
+  }
+
+  // ═══════════ RENDER ALL PAGES (continuous scroll) ═══════════
+  function renderAllPages() {
+    const content = document.getElementById('readerContent');
+    let html = '';
+
+    for (let i = 0; i < allPages.length; i++) {
+      const paragraphs = allPages[i];
+      if (!paragraphs || paragraphs.length === 0) continue; // skip blank pages
+
+      for (const p of paragraphs) {
+        if (p.type === 'chapter-heading') {
+          html += `<p class="chapter-heading">${esc(p.text)}</p>`;
+        } else if (p.type === 'subheading') {
+          html += `<p class="subheading">${esc(p.text)}</p>`;
+        } else if (p.type === 'scene-break') {
+          html += `<p class="scene-break">${esc(p.text)}</p>`;
+        } else {
+          html += `<p>${esc(p.text)}</p>`;
+        }
+      }
+    }
+
+    if (!html) {
+      html = '<p style="color:var(--text-muted);text-align:center;font-style:italic;text-indent:0">No text could be extracted.</p>';
+    }
+
+    content.innerHTML = html;
+    window.scrollTo(0, 0);
+    updateProgressBar();
+  }
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // ═══════════ LOAD PDF.js ═══════════
+  async function loadPdfJs() {
+    if (pdfjsLib) return pdfjsLib;
+    pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs';
+    return pdfjsLib;
+  }
+
+  // ═══════════ EXTRACT FROM PDF DATA ═══════════
+  async function extractFromPdfData(source) {
+    textExtracting = true;
+    const overlay = document.getElementById('textLoading');
+    const statusEl = document.getElementById('textLoadingStatus');
+    const progressFill = document.getElementById('progressFill');
+
+    overlay.classList.add('active');
+    document.getElementById('uploadScreen').classList.remove('active');
+    statusEl.textContent = 'Loading PDF.js...';
+    progressFill.style.width = '0%';
+
+    let lib;
+    try {
+      lib = await loadPdfJs();
+    } catch (err) {
+      statusEl.textContent = 'Failed to load PDF.js library.';
+      setTimeout(() => { overlay.classList.remove('active'); showUploadScreen(); }, 2000);
+      textExtracting = false;
+      return;
+    }
+
+    let pdfDoc;
+    try {
+      statusEl.textContent = 'Opening PDF...';
+      progressFill.style.width = '5%';
+
+      const loadOpts = typeof source === 'string' ? { url: source } : { data: source };
+      pdfDoc = await lib.getDocument(loadOpts).promise;
+    } catch (err) {
+      statusEl.textContent = 'Failed to open PDF file.';
+      setTimeout(() => { overlay.classList.remove('active'); showUploadScreen(); }, 2000);
+      textExtracting = false;
+      return;
+    }
+
+    totalPages = pdfDoc.numPages;
+    allPages = [];
+
+    statusEl.textContent = `Extracting text... 0/${totalPages}`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      try {
+        const page = await pdfDoc.getPage(i);
+        const tc = await page.getTextContent();
+        const vp = page.getViewport({ scale: 1 });
+        const paragraphs = processPageText(tc, vp);
+        allPages.push(paragraphs);
+      } catch {
+        allPages.push([]);
+      }
+
+      const pct = Math.round((i / totalPages) * 100);
+      progressFill.style.width = pct + '%';
+      if (i % 3 === 0 || i === totalPages) {
+        statusEl.textContent = `Extracting text... ${i}/${totalPages}`;
+      }
+    }
+
+    // Setup
+    textExtracted = true;
+    textExtracting = false;
+    overlay.classList.remove('active');
+
+    document.getElementById('readerContainer').classList.remove('hidden');
+    document.getElementById('readingProgress').classList.remove('hidden');
+    renderAllPages();
+  }
+
+  // ═══════════ ATTEMPT CORS PROXY EXTRACTION ═══════════
+  async function attemptTextExtraction() {
+    textExtracting = true;
+    const overlay = document.getElementById('textLoading');
+    const statusEl = document.getElementById('textLoadingStatus');
+    const progressFill = document.getElementById('progressFill');
+
+    overlay.classList.add('active');
+    statusEl.textContent = 'Loading PDF.js...';
+    progressFill.style.width = '0%';
+
+    let lib;
+    try {
+      lib = await loadPdfJs();
+    } catch {
+      textExtracting = false;
+      overlay.classList.remove('active');
+      showUploadScreen();
+      return;
+    }
+
+    // Local Vercel proxy (always works in production) + external fallbacks
+    const proxies = [
+      `/api/proxy?id=${fileId}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://drive.google.com/uc?export=download&id=${fileId}`)}`,
+      `https://corsproxy.io/?url=${encodeURIComponent(`https://drive.google.com/uc?export=download&id=${fileId}`)}`,
+    ];
+
+    let pdfDoc = null;
+
+    for (let i = 0; i < proxies.length; i++) {
+      try {
+        statusEl.textContent = `Fetching PDF (${i + 1}/${proxies.length})...`;
+        const task = lib.getDocument({ url: proxies[i] });
+        const timeoutMs = i === 0 ? 25000 : 10000; // longer timeout for our own proxy
+        const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), timeoutMs));
+        pdfDoc = await Promise.race([task.promise, timeout]);
+        break;
+      } catch (err) {
+        console.warn(`Proxy ${i + 1} failed:`, err.message);
+        pdfDoc = null;
+      }
+    }
+
+    overlay.classList.remove('active');
+    textExtracting = false;
+
+    if (pdfDoc) {
+      // Proxy worked — extract text from the loaded doc
+      textExtracting = true;
+      overlay.classList.add('active');
+
+      totalPages = pdfDoc.numPages;
+      allPages = [];
+
+      for (let i = 1; i <= totalPages; i++) {
+        try {
+          const page = await pdfDoc.getPage(i);
+          const tc = await page.getTextContent();
+          const vp = page.getViewport({ scale: 1 });
+          allPages.push(processPageText(tc, vp));
+        } catch { allPages.push([]); }
+
+        const pct = Math.round((i / totalPages) * 100);
+        progressFill.style.width = pct + '%';
+        if (i % 3 === 0 || i === totalPages) {
+          statusEl.textContent = `Extracting text... ${i}/${totalPages}`;
+        }
+      }
+
+      textExtracted = true;
+      textExtracting = false;
+      overlay.classList.remove('active');
+
+      document.getElementById('readerContainer').classList.remove('hidden');
+      document.getElementById('readingProgress').classList.remove('hidden');
+      renderAllPages();
+    } else {
+      // All proxies failed — show file upload screen
+      showUploadScreen();
+    }
+  }
+
+  function showUploadScreen() {
+    document.getElementById('uploadScreen').classList.add('active');
+    document.getElementById('readerContainer').classList.add('hidden');
+    document.getElementById('readingProgress').classList.add('hidden');
+  }
+
+  // ═══════════ FILE UPLOAD HANDLING ═══════════
+  function handleFile(file) {
+    if (!file || file.type !== 'application/pdf') {
+      document.getElementById('uploadStatus').textContent = 'Please select a valid PDF file.';
+      return;
+    }
+    document.getElementById('uploadStatus').textContent = '';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      extractFromPdfData(data);
+    };
+    reader.onerror = () => {
+      document.getElementById('uploadStatus').textContent = 'Error reading file. Please try again.';
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // File input
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    handleFile(e.target.files[0]);
+  });
+
+  // Drag and drop
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
+  });
+  dropZone.addEventListener('click', () => document.getElementById('fileInput').click());
+
+  // ═══════════ EVENTS ═══════════
+
+  // Mode toggle
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchMode(btn.dataset.mode));
+  });
+
+  // Settings toggle
+  document.getElementById('settingsToggle').addEventListener('click', () => {
+    document.getElementById('settingsPanel').classList.toggle('open');
+  });
+
+  // Close panel on outside click
+  document.addEventListener('click', (e) => {
+    const panel = document.getElementById('settingsPanel');
+    const toggle = document.getElementById('settingsToggle');
+    if (panel.classList.contains('open') && !panel.contains(e.target) && !toggle.contains(e.target)) {
+      panel.classList.remove('open');
+    }
+  });
+
+  // Theme
+  document.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.addEventListener('click', () => { settings.theme = dot.dataset.theme; applySettings(); });
+  });
+
+  // Font
+  document.querySelectorAll('[data-font]').forEach(btn => {
+    btn.addEventListener('click', () => { settings.font = btn.dataset.font; applySettings(); });
+  });
+
+  // Font size
+  document.getElementById('fontMinus').addEventListener('click', () => {
+    settings.fontSize = Math.max(12, settings.fontSize - 1); applySettings();
+  });
+  document.getElementById('fontPlus').addEventListener('click', () => {
+    settings.fontSize = Math.min(32, settings.fontSize + 1); applySettings();
+  });
+
+  // Line height
+  document.getElementById('lineHeightSlider').addEventListener('input', (e) => {
+    settings.lineHeight = parseFloat(e.target.value); applySettings();
+  });
+
+  // Width
+  document.getElementById('widthSlider').addEventListener('input', (e) => {
+    settings.textWidth = parseInt(e.target.value); applySettings();
+  });
+
+  // Scroll progress tracking
+  function updateProgressBar() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
+    document.getElementById('readingProgressFill').style.width = pct + '%';
+    document.getElementById('readingProgressText').textContent = pct + '%';
+  }
+
+  window.addEventListener('scroll', () => {
+    if (currentMode === 'text' && textExtracted) {
+      requestAnimationFrame(updateProgressBar);
+    }
+  });
+
+  // Fullscreen
+  document.getElementById('fullscreenToggle').addEventListener('click', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  // ═══════════ INIT ═══════════
+  applySettings();
+
+  if (!fileId) {
+    document.getElementById('loadingScreen').classList.add('fade-out');
+    document.getElementById('readerContent').innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:4rem 0;text-indent:0">No book selected.</p>';
+  } else {
+    // Load PDF iframe immediately
+    document.getElementById('pdfFrame').src = `https://drive.google.com/file/d/${fileId}/preview`;
+    setTimeout(() => {
+      document.getElementById('loadingScreen').classList.add('fade-out');
+    }, 800);
+    switchMode('pdf');
+  }
+</script>
+</body>
+</html>
